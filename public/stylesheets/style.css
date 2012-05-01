@@ -74,7 +74,20 @@ td { vertical-align: top; }
    Author:
    ========================================================================== */
 
+body {
+  background:#000000;
+  color:#ffffff;
+}
 
+#canvas-container {
+  width:750px;
+  height:525px;
+  margin: 0 auto;
+}
+
+#canvas {
+  background:transparent url(/public/images/map.png) no-repeat;
+}
 
 
 
