@@ -1,5 +1,3 @@
-var conn;
-var servers = [];
 var clients = [];
 var canvas;
 var context;
@@ -8,13 +6,11 @@ var maxCount = maxCountDef;
 
 
 var offline = function() {
-  log("service offline");
+  $('#live-notice').fadeOut(1000);
+  $('#offline-notice').modal();
 };
 
 var spawn = function(x1, y1, x2, y2) {
-  if (servers.length > 10) {
-    servers.shift();
-  }
 
   if (clients.length > maxCount) {
     return;
@@ -22,40 +18,6 @@ var spawn = function(x1, y1, x2, y2) {
 
   clients.push(new Client([x1, y1], [x2, y2]));
 
-  // TEST
-  //clients.push([x1, y1]);
-  //servers.push([x2, y2]);
-
-  /*var circle = svg.selectAll("circle")
-    .data(data);
-
-  circle.enter().append("circle")
-    .attr("cy", function (d) {
-      return d3.geo.mercator()(d)[1];
-    })
-    .attr("cx", function (d) {
-      return d3.geo.mercator()(d)[0];
-    })
-    .attr("r", 1)
-    .style("opacity", 0.5)
-    .style("fill", "hotpink")
-    .transition()
-      .duration(2500)
-      .attr("r", 5)
-      .remove()
-      .each("end", function() {
-        data.shift();
-        data.shift();
-      });*/
-  /*if (data.length > 18) {
-          data.shift();
-          data.shift();
-        }
-        var next = [m[4], m[3]];
-        var next2 = [m[2], m[1]];
-        data.push(next);
-        data.push(next2);
-        */
 };
 
 window.requestAnimFrame = (function(c){
@@ -77,7 +39,7 @@ var same = function(a, b) {
 var Bezier = function(start, end) {
   this.t = 0.0;
   this.delta = (0.005 + (400000 - (Math.pow((start[0] - end[0]),2) + Math.pow((start[1] - end[1]),2))) / 80000000) * ( Math.random() + 0.5);
-  this.opacity = 0.4;
+  this.opacity = 0.25;
   this.points = [{x: start[0], y:start[1]}, {x: start[0] + (end[0] - [start[0]]) / 2, y: start[1] + (end[1] - [start[1]]) / 2}, {x:end[0], y:end[1]}];
   this.bezier = [];
 
@@ -144,7 +106,9 @@ Client.prototype = {
 
     if (this.age > 300) {
       a.splice(i, 1);
-      maxCount -= 1;
+      if (maxCount > maxCountDef) {
+        maxCount -= 1;
+      }
     }
 
     if (this.line) this.line.update(i, a);
@@ -163,28 +127,90 @@ Client.prototype = {
 
 var animate = function() {
 
-  // update
   clients.forEach(function(el, i, a){el.update(i, a);});
 
-  // clear
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  // draw
   clients.forEach(function(el){el.draw();});
   clients.forEach(function(el){el.drawLine();});
 
-  // request new frame
   requestAnimFrame(function(){
     animate();
   });
 
 };
 
+var messageReceived = function(message) {
+  var r = /^([\-\d\.]+), ([\-\d\.]+)\|([\-\d\.]+), ([\-\d\.]+)/g;
+  var m = r.exec(message);
+  if (m[1] && m[2] && m[3] && m[4]) {
+    spawn(m[2], m[1], m[4], m[3]);
+  } else {
+    log("Malformed data: " + message);
+  }
+};
+
+MockStream = function () {};
+MockStream.data = [];
+MockStream.index = 0;
+MockStream.next = function() {
+  MockStream.index += 1;
+  if (MockStream.data.length >= MockStream.index) {
+    var message = MockStream.data[MockStream.index];
+    if (message) {
+      messageReceived(message);
+    }
+  } else {
+    MockStream.index = 0; // restart
+  }
+
+  window.setTimeout(MockStream.next, Math.random() * 20 + 10);
+};
+
 $(document).ready(function() {
 
-  d3.select("div[role='main']")
-    .append("div")
-      .attr("id", "canvas-container")
+  $('.modal .close').click(function(e) {
+    e.preventDefault();
+
+    $(this).parent().fadeOut();
+    $('#simplemodal-overlay').fadeOut();
+
+    return false;
+  });
+
+  $('#count-select a').click(function(e) {
+    e.preventDefault();
+    
+    var r = /#(\d+)$/;
+    var count = r.exec(e.target.href)[1];
+    if (!isNaN(parseInt(count))) {
+      maxCountDef = parseInt(count);
+      maxCount = maxCountDef;
+    }
+
+    return false;
+  });
+
+  $('#kaboom').hover(function(e) {
+    var warn = $('<div></div>').attr('id', 'kaboom-warning').text("You're on your own").appendTo('#count-select');
+    warn.animate({top: -35, opacity: 1});
+  }, function(e) {
+    $('#kaboom-warning').remove();
+  });
+
+  $('#play-mock-data').click(function(e) {
+    e.preventDefault();
+
+    $('.modal .close').trigger('click');
+    $.getJSON('/public/joins.json', function(data) {
+      MockStream.data = data;
+      MockStream.next();
+    });
+
+    return false;
+  });
+
+  d3.select("#canvas-container")
     .append("canvas")
       .attr("id", "canvas")
       .attr("width", 750)
@@ -193,32 +219,20 @@ $(document).ready(function() {
   canvas = $('#canvas')[0];
   context = canvas.getContext('2d');
 
-  if ($('html').is('.websockets')) {
-    try {
-      conn = new WebSocket("ws://ec2-50-16-7-248.compute-1.amazonaws.com:8000");
-    } catch (err) {
+  try {
+    var socket = io.connect("http://ec2-50-16-7-248.compute-1.amazonaws.com", {port : 9000});
+    socket.on('connect', function() {
+      log("Connected to data hose.");
+    });
+    socket.on('join', function(message){
+      messageReceived(message);
+    });
+    socket.on('disconnect', function(){
       offline();
-    }
-    conn.onopen = function(event) {
-      log("open");
-    };
-    conn.onerror = function(event) {
-      offline();
-    };
-    conn.onclose = function(event) {
-      offline();
-    };
-    conn.onmessage = function(event) {
-      var message = event.data;
-      var r = /^([\-\d\.]+), ([\-\d\.]+)\|([\-\d\.]+), ([\-\d\.]+)/g;
-      var m = r.exec(message);
-      if (m[1] && m[2] && m[3] && m[4]) {
-        spawn(m[2], m[1], m[4], m[3]);
-      } else {
-        log("malformed data");
-      }
-    };
-
-    animate();
+    });
+  } catch (err) {
+    offline();
   }
+
+  animate();
 });

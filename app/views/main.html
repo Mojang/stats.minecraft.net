@@ -18,24 +18,35 @@
     <script src="@{'/public/javascripts/libs/modernizr-2.5.3.min.js'}"></script>
 </head>
 <body>
+<div id="offline-notice" class="modal">
+    <a href="#" class="close">Close</a>
+    <h2>Data Hose Offline</h2>
+    <p>
+        Seems like the connection to fetch live data couldn't be sustained right now.
+    </p>
+    <p style="text-align:center">
+        <a href="#" id="play-mock-data">Play some cached data instead</a>
+    </p>
+</div>
 <header>
-
 </header>
 <div role="main">
  #{doLayout /}
 </div>
 <footer>
-
+Powered by <a href="http://redis.io/">Redis</a>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<a href="http://nodejs.org/">node.js</a>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<a href="http://socket.io/">Socket.IO</a>
 </footer>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="@{'/public/javascripts/libs/jquery-1.7.2.min.js'}"><\/script>')</script>
 <script src="@{'/public/javascripts/libs/d3.v2.min.js'}"></script>
+<script src="http://ec2-50-16-7-248.compute-1.amazonaws.com:9000/socket.io/socket.io.js"></script>
+<script src="@{'/public/javascripts/libs/jquery.simplemodal.1.4.2.min.js'}"></script>
 
 <script src="@{'/public/javascripts/plugins.js'}"></script>
 <script src="@{'/public/javascripts/script.js'}"></script>
 <script>
-    var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+    var _gaq=[['_setAccount','UA-9482675-8'],['_trackPageview']];
     (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
     g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
     s.parentNode.insertBefore(g,s)}(document,'script'));

@@ -1,4 +1,33 @@
 #{extends 'main.html' /}
 
+<div class="container clearfix"  style="text-align:center; height:120px">
+    <h1>Minecraft Server Connections</h1>
+    <p id="live-notice">Seen live as they happen</p>
+</div>
 
-Here is index
+<div id="canvas-container">
+</div>
+
+<div class="container clearfix" style="text-align:center">
+    <ul id="count-select" class="clearfix">
+        <li>Display Count</li>
+        <li><a href="#5">Few</a></li>
+        <li><a href="#50">A Bunch</a></li>
+        <li><a href="#9000" id="kaboom">Kaboom</a></li>
+    </ul>
+</div>
+
+<div class="container clearfix">
+    <div class="column">
+        <h3>So What is This?</h3>
+        <p>
+            A dot is a server or a client. Lines are traced from clients connecting to servers. Lone dots are local servers.
+        </p>
+    </div>
+    <div class="column">
+        <h3>Is There More Data?</h3>
+        <p>
+            Yes, we have some <a href="/public/snoop.tar.gz">raw hardware data</a> right now. When we get more we'll launder it and present it nicely for you.
+        </p>
+    </div>
+</div>
