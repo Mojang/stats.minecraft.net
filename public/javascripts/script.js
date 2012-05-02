@@ -220,7 +220,7 @@ $(document).ready(function() {
   context = canvas.getContext('2d');
 
   try {
-    var socket = io.connect("http://ec2-50-16-7-248.compute-1.amazonaws.com", {port : 9000});
+    var socket = io.connect("http://107.21.202.56", {port : 9000});
     socket.on('connect', function() {
       log("Connected to data hose.");
     });
