@@ -177,7 +177,21 @@ ul#count-select li a:hover {
   color:#888;
 }
 
-#play-mock-data {
+span.small {
+  font-size:13px;
+  color:#666;
+}
+
+span.small a {
+  color:#888;
+  text-decoration:none;
+}
+
+span.small a:hover {
+  color: #aaa;
+}
+
+.big-link {
   font-size:20px;
   text-decoration:none;
 }

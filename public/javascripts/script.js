@@ -6,6 +6,7 @@ var maxCount = maxCountDef;
 
 
 var offline = function() {
+  if (offlineMode) return;
   $('#live-notice').fadeOut(1000);
   $('#offline-notice').modal();
 };
@@ -191,6 +192,14 @@ $(document).ready(function() {
     return false;
   });
 
+  if (offlineMode) {
+    $('#live-notice').hide();
+    $.getJSON('/public/joins.json', function(data) {
+      MockStream.data = data;
+      MockStream.next();
+    });
+  }
+
   $('#kaboom').hover(function(e) {
     var warn = $('<div></div>').attr('id', 'kaboom-warning').text("You're on your own").appendTo('#count-select');
     warn.animate({top: -35, opacity: 1});
@@ -220,7 +229,7 @@ $(document).ready(function() {
   context = canvas.getContext('2d');
 
   try {
-    var socket = io.connect("http://ec2-50-16-7-248.compute-1.amazonaws.com", {port : 9000});
+    var socket = io.connect("http://ec2-107-21-202-56.compute-1.amazonaws.com", {port : 9000});
     socket.on('connect', function() {
       log("Connected to data hose.");
     });
