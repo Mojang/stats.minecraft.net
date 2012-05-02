@@ -116,8 +116,8 @@ Client.prototype = {
 
   draw: function() {
     context.fillStyle = "rgba(195,225,225,0.5)";
-    context.fillRect(this.xy[0] - 2, this.xy[1] - 2, 4, 4);
-    context.fillRect(this.serverXy[0], this.serverXy[1], this.size, this.size);
+    context.fillRect(this.xy[0] - this.size / 2, this.xy[1] - this.size / 2, this.size, this.size);
+    context.fillRect(this.serverXy[0] - this.size / 2, this.serverXy[1] - this.size / 2, this.size, this.size);
   },
 
   drawLine : function() {
@@ -220,7 +220,7 @@ $(document).ready(function() {
   context = canvas.getContext('2d');
 
   try {
-    var socket = io.connect("http://107.21.202.56", {port : 9000});
+    var socket = io.connect("http://ec2-50-16-7-248.compute-1.amazonaws.com", {port : 9000});
     socket.on('connect', function() {
       log("Connected to data hose.");
     });
