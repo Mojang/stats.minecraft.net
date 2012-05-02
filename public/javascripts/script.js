@@ -116,7 +116,7 @@ Client.prototype = {
 
   draw: function() {
     context.fillStyle = "rgba(195,225,225,0.5)";
-    context.fillRect(this.xy[0], this.xy[1], 4, 4);
+    context.fillRect(this.xy[0] - 2, this.xy[1] - 2, 4, 4);
     context.fillRect(this.serverXy[0], this.serverXy[1], this.size, this.size);
   },
 
