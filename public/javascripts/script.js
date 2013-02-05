@@ -4,9 +4,10 @@ var context;
 var maxCountDef = 50;
 var maxCount = maxCountDef;
 
-
+var offlineWarned = false;
 var offline = function() {
-  if (offlineMode) return;
+  if (offlineMode || offlineWarned) return;
+  offlineWarned = true;
   $('#live-notice').fadeOut(1000);
   $('#offline-notice').modal();
 };
@@ -169,6 +170,13 @@ MockStream.next = function() {
 };
 
 $(document).ready(function() {
+
+  $('a.scroll-to').click(function() {
+    e.preventDefault();
+
+    $.scrollTo( this.hash, 1500, { easing:'elasout' });
+    return false;
+  });
 
   $('.modal .close').click(function(e) {
     e.preventDefault();

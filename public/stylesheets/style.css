@@ -10,13 +10,14 @@ audio:not([controls]) { display: none; }
 html { font-size: 100%; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
 html, button, input, select, textarea { font-family: 'Helvetica Neue', helvetica, sans-serif; color: #ffffff; }
 body { margin: 0; font-size: 15px; font-weight:300; line-height: 1.4; }
+h3 { font-weight: 100; color:#fff; font-size:18pt; }
 
 ::-moz-selection { background: #4a7cc6; color: #000; text-shadow: none; }
 ::selection { background: #4a7cc6; color: #000; text-shadow: none; }
 
-a { color: #7396cf; }
-a:visited { color: #7396cf; }
-a:hover { color: #7396cf; }
+a { color: #bfcee5; text-decoration: none }
+a:visited { color: #bfcee5; }
+a:hover { color: #bfcee5; text-decoration: underline; }
 a:focus { outline: thin dotted; }
 a:hover, a:active { outline: 0; }
 
@@ -75,8 +76,14 @@ td { vertical-align: top; }
    ========================================================================== */
 
 body {
-  background:#181818;
+  background:#181818 url(/public/images/dark_dotted.png);
   color:#ffffff;
+}
+@media screen and (-webkit-min-device-pixel-ratio: 2), screen and (max--moz-device-pixel-ratio: 2) {
+body {
+    background-image: url(/public/images/dark_dotted_@2X.png);
+    background-size: 5px 5px;
+}
 }
 
 header {
@@ -91,11 +98,15 @@ header {
 
 .container {
   width:750px;
-  margin: 0 auto;
+  margin: 3em auto 0;
 }
 
 #canvas {
   background:transparent url(/public/images/map.png) no-repeat;
+  background-image:url(/public/images/map.svg);
+  width:750px;
+  height: 525px;
+  background-size: 100% 100%;
 }
 
 .column {
@@ -132,11 +143,17 @@ footer {
   color:#444;
   font-size:13px;
   padding-bottom:2em;
+  margin-top:10em;
 }
 
 footer a, footer a:visited {
   text-decoration:none;
   color:#444;
+}
+
+ul {
+  margin:0;
+  padding:0;
 }
 
 ul#count-select {

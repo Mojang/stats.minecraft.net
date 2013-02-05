@@ -27,6 +27,9 @@
     <p style="text-align:center">
         <a href="#" class="big-link" id="play-mock-data">Play some cached data instead</a>
     </p>
+    <p style="text-align:center">
+        Or you could just hit the escape key, maybe it starts working&hellip;
+    </p>
 </div>
 <header>
 </header>
@@ -34,7 +37,7 @@
  #{doLayout /}
 </div>
 <footer>
-Powered by <a href="http://redis.io/">Redis</a>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<a href="http://nodejs.org/">node.js</a>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<a href="http://socket.io/">Socket.IO</a>
+    Mojang &copy; 2009-2013. "Minecraft" is a trademark of Notch Development AB
 </footer>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
@@ -48,6 +51,8 @@ Powered by <a href="http://redis.io/">Redis</a>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;<a 
 <script>offlineMode = true;</script>
 #{/else}
 <script src="@{'/public/javascripts/libs/jquery.simplemodal.1.4.2.min.js'}"></script>
+<script src="@{'/public/javascripts/libs/jquery.scrollTo.min.js'}"></script>
+<script src="@{'/public/javascripts/libs/jquery.localScroll.min.js'}"></script>
 
 <script src="@{'/public/javascripts/plugins.js'}"></script>
 <script src="@{'/public/javascripts/script.js'}"></script>

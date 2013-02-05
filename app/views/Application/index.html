@@ -1,11 +1,26 @@
 #{extends 'main.html' /}
 
-<div class="container clearfix"  style="text-align:center; height:120px">
-    <h1>Minecraft Server Connections</h1>
-    <p id="live-notice">
-        Seen live as they happen.<br/>
-        <span class="small">Not loading? <a href="/?offline=indeed">Watch some cached data</a></span>
+<div class="container clearfix"  style="text-align:center;">
+    <h1>Snooped Minecraft Stats</h1>
+    <p>
+        When we asked the community in early 2012 regarding snooping non-personal data about<br>Minecraft players (<a target="_blank" href="http://wiki.vg/Session#Snoop">more info here</a>) we wanted to share that data back to you.
     </p>
+    <p>
+        This place is the home of that data, and it can be <a class="scroll-to" href="#downloads">downloaded below</a>.<br>If you do something cool with the data sets, <a target="_blank" href="https://twitter.com/search/realtime?q=%23mcstats&src=typd">tweet with #mcstats</a> so we can have a peek.
+    </p>
+</div>
+
+<div class="container clearfix">
+    <h3>Minecraft server connections</h3>
+    <p>
+        A dot is a server or a client. Lines are traced from clients connecting to servers. Lone dots are local servers.
+    </p>
+    <div class="clearfix" style="text-align:center;">
+        <p id="live-notice">
+            Seen live as they happen.<br/>
+            <span class="small">Not loading? <a href="/?offline=indeed">Watch some cached data</a></span>
+        </p>
+    </div>
 </div>
 
 <div id="canvas-container">
@@ -20,17 +35,14 @@
     </ul>
 </div>
 
-<div class="container clearfix">
-    <div class="column">
-        <h3>So What is This?</h3>
-        <p>
-            A dot is a server or a client. Lines are traced from clients connecting to servers. Lone dots are local servers.
-        </p>
-    </div>
-    <div class="column">
-        <h3>Is There More Data?</h3>
-        <p>
-            Yes, we have some <a href="/public/snoop.tar.gz">raw hardware data</a> right now. When we get more we'll launder it and present it nicely for you.
-        </p>
-    </div>
+<div class="container clearfix" id="downloads">
+    <h3>Download snooped data sets</h3>
+<!--    <p>
+        Here's a bunch of rather large data dumps from the snooper servers, made available for you to poke around in.
+    </p>
+    <ul>
+        <li><a href="#">client-201301013_20130114.gz.torrent</a> (2.1 GB) &ndash; ${new Date(new Date().getTime() - 1000000).since()}</li>
+    </ul>
+-->
+    <p><em>None yet, stay tuned.</em></p>
 </div>
