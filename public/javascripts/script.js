@@ -136,6 +136,10 @@ Client.prototype = {
 
 var animate = function() {
 
+  if (clients.length > 3000) {
+    clients = clients.slice(0, 200);
+  }
+
   clients.forEach(function(el, i, a){
     if(!el.active && (el.startTime + el.time) < (new Date()).getTime()) {
       el.active = true;
