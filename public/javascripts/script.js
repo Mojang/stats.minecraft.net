@@ -3,6 +3,7 @@ var canvas;
 var context;
 var maxCountDef = 50;
 var maxCount = maxCountDef;
+var terminator = [];
 
 var offlineWarned = false;
 var offline = function() {
@@ -159,6 +160,8 @@ var animate = function() {
   });
 //  clients.forEach(function(el){el.drawLine();});
 
+  drawTerminator();
+
   requestAnimFrame(function(){
     animate();
   });
@@ -189,6 +192,98 @@ var connect = function() {
   } catch (err) {
     offline();
   }
+};
+
+var dayOfTheYear = function(date) {
+  var start = new Date(date.getFullYear(), 0, 0);
+  var diff = date - start;
+  var oneDay = 1000 * 60 * 60 * 24;
+  var day = Math.floor(diff / oneDay);
+  return day;
+}
+
+var getDaylightY = function(x) {
+  var equinox = dayOfTheYear(new Date(0, 2, 20, 0, 0, 0, 0));
+  var currentDay = dayOfTheYear(new Date());
+  var offsetSin = ((365.25 - equinox + currentDay) % 365.25)/365.25;
+  var offsetSinFactor = Math.sin(offsetSin * 2 * Math.PI * x);
+  var offsetY = offsetSinFactor * 23.44;
+  var offsetYmerc = Math.atan(Math.sinh(offsetY)) * (180 / Math.PI) / 90 + 1;
+  return offsetYmerc;
+}
+
+var drawDaylight = function() {
+  var xPoints = 24;
+  var xDelta = context.canvas.width / xPoints;
+  context.beginPath();
+  context.globalCompositeOperation = 'source-over';
+  context.strokeStyle = "rgba(255,255,0,1.0)";
+  context.lineWidth=2;
+  context.moveTo(0, getDaylightY(15/xPoints) * context.canvas.height / 2);
+  for (var i = 0; i <= xPoints; i++) {
+    var x = i + 15; // time to left
+    if (x > 23)
+      x -= 24;
+    var y = getDaylightY(x/xPoints) * context.canvas.height / 2;
+    log(i + ", " + y);
+    context.lineTo(i * xDelta,  y);
+  }
+  context.stroke();
+};
+
+// This isn't really too accurate, too tired ahoy!
+var refreshTerminator = function() {
+  var dayOfYear = dayOfTheYear(new Date());
+  var dec = -23.5 * Math.cos(2 * Math.PI / 365 * (dayOfYear - 172));
+  var tau = (new Date()).getHours() + ((new Date()).getMinutes() / 60);
+  var k = Math.PI/180;
+  var x0 = 0.5;
+  var y0 = 0.5;
+  var x, y;
+  var longitude, tanLat, arctanLat;
+  var steps = 100;
+
+  terminator = [];
+  terminator.push([-1, -1]);
+
+  for (var i = -180; i < 180; i++) {
+    longitude = i + (180 * tau / 12);
+    tanLat = - Math.cos(longitude * k) / Math.tan(dec * k);
+    arctanLat = Math.atan(tanLat) / k;
+
+    // normalize to -1 .. 1
+    y = (y0 - arctanLat) / 60; // arbitrary
+    x = (x0 + i) / 150;
+
+    // mercat
+    y = Math.atan(Math.sinh(y)) / k / 90;
+
+    // scale
+    y *= context.canvas.height / 2;
+    y += context.canvas.height / 2 + 70; // arbitrary
+    x *= context.canvas.width / 2;
+    x += context.canvas.width / 2;
+
+    terminator.push([x, y]);
+  }
+  terminator.push([context.canvas.width + 1, -1]);
+};
+
+var drawTerminator = function() {
+  context.beginPath();
+  context.globalCompositeOperation = 'lighter';
+  context.moveTo(-1, -1);
+  context.strokeStyle = "rgba(170,220,255,0.20)";
+  context.lineWidth=1;
+
+  for (var i = 0; i < terminator.length; i++) {
+    context.lineTo(terminator[i][0], terminator[i][1]);
+  }
+
+  context.lineTo(context.canvas.width + 1, -1);
+  context.closePath();
+  context.stroke();
+  context.globalCompositeOperation = 'source-over';
 }
 
 var messageReceived = function(message) {
@@ -241,7 +336,7 @@ $(document).ready(function() {
 
   $('#count-select a').click(function(e) {
     e.preventDefault();
-    
+
     var r = /#(\d+)$/;
     var count = r.exec(e.target.href)[1];
     if (!isNaN(parseInt(count))) {
@@ -280,6 +375,9 @@ $(document).ready(function() {
   });
 
   connect();
+
+  refreshTerminator();
+  window.setInterval(refreshTerminator, 60 * 1000);
 
   animate();
 });

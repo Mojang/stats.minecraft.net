@@ -8,4 +8,12 @@ window.log = function f(){ log.history = log.history || []; log.history.push(arg
 
 
 // place any jQuery/helper plugins in here, instead of separate, slower script files.
+function sinh(aValue)
+{
+var myTerm1 = Math.pow(Math.E, aValue);
+var myTerm2 = Math.pow(Math.E, -aValue);
+
+return (myTerm1-myTerm2)/2;
+}
+Math.constructor.prototype.sinh = sinh;
 
