@@ -12,13 +12,13 @@ var offline = function() {
   $('#offline-notice').modal();
 };
 
-var spawn = function(x1, y1, x2, y2) {
+var spawn = function(x1, y1, x2, y2, startTime, time) {
 
   if (clients.length > maxCount) {
     return;
   }
 
-  clients.push(new Client([x1, y1], [x2, y2]));
+  clients.push(new Client([x1, y1], [x2, y2], startTime, time));
 
 };
 
@@ -86,8 +86,15 @@ Bezier.prototype = {
 
 };
 
-var Client = function(pos, serverPos) {
+var Client = function(pos, serverPos, startTime, time) {
   this.pos = pos;
+  this.active = false;
+  if (typeof time !== "undefined") {
+    this.time = parseInt(time) + (Math.round(Math.random() * (parseInt(time) * 3)));
+  } else {
+    this.time = Math.round(Math.random() * 4000);
+  }
+  this.startTime = startTime;
   this.age = 0;
   this.size = 2 + Math.round(Math.random() * 3);
   this.proj = d3.geo.mercator()(this.pos);
@@ -129,12 +136,24 @@ Client.prototype = {
 
 var animate = function() {
 
-  clients.forEach(function(el, i, a){el.update(i, a);});
+  clients.forEach(function(el, i, a){
+    if(!el.active && (el.startTime + el.time) < (new Date()).getTime()) {
+      el.active = true;
+    }
+    if (el.active) {
+      el.update(i, a);
+    }
+  });
 
   context.clearRect(0, 0, canvas.width, canvas.height);
 
-  clients.forEach(function(el){el.draw();});
-  clients.forEach(function(el){el.drawLine();});
+  clients.forEach(function(el) {
+    if (!el.active)
+      return;
+    el.draw();
+    el.drawLine();
+  });
+//  clients.forEach(function(el){el.drawLine();});
 
   requestAnimFrame(function(){
     animate();
@@ -142,14 +161,43 @@ var animate = function() {
 
 };
 
-var messageReceived = function(message) {
-  var r = /^([\-\d\.]+), ([\-\d\.]+)\|([\-\d\.]+), ([\-\d\.]+)/g;
-  var m = r.exec(message);
-  if (m[1] && m[2] && m[3] && m[4]) {
-    spawn(m[2], m[1], m[4], m[3]);
-  } else {
-    log("Malformed data: " + message);
+var connect = function() {
+  d3.select("#canvas-container")
+    .append("canvas")
+      .attr("id", "canvas")
+      .attr("width", 750)
+      .attr("height", 525);
+
+  canvas = $('#canvas')[0];
+  context = canvas.getContext('2d');
+
+  try {
+    var socket = io.connect("http://ec2-107-21-202-56.compute-1.amazonaws.com", {port : 9000});
+    socket.on('connect', function() {
+      log("Connected to data hose.");
+    });
+    socket.on('join', function(message){
+      messageReceived(message);
+    });
+    socket.on('disconnect', function(){
+      offline();
+    });
+  } catch (err) {
+    offline();
   }
+}
+
+var messageReceived = function(message) {
+  var messagedAt = (new Date()).getTime();
+  message.forEach(function(el, i, a) {
+      var r = /^([\-\d\.]+), ([\-\d\.]+)\|([\-\d\.]+), ([\-\d\.]+)(\|(\d+))?/g;
+      var m = r.exec(el);
+      if (m[1] && m[2] && m[3] && m[4]) {
+        spawn(m[2], m[1], m[4], m[3], messagedAt, m[6]);
+      } else {
+        log("Malformed data: " + el);
+      }
+  });
 };
 
 MockStream = function () {};
@@ -160,7 +208,7 @@ MockStream.next = function() {
   if (MockStream.data.length >= MockStream.index) {
     var message = MockStream.data[MockStream.index];
     if (message) {
-      messageReceived(message);
+      messageReceived([message]);
     }
   } else {
     MockStream.index = 0; // restart
@@ -227,29 +275,7 @@ $(document).ready(function() {
     return false;
   });
 
-  d3.select("#canvas-container")
-    .append("canvas")
-      .attr("id", "canvas")
-      .attr("width", 750)
-      .attr("height", 525);
-
-  canvas = $('#canvas')[0];
-  context = canvas.getContext('2d');
-
-  try {
-    var socket = io.connect("http://ec2-107-21-202-56.compute-1.amazonaws.com", {port : 9000});
-    socket.on('connect', function() {
-      log("Connected to data hose.");
-    });
-    socket.on('join', function(message){
-      messageReceived(message);
-    });
-    socket.on('disconnect', function(){
-      offline();
-    });
-  } catch (err) {
-    offline();
-  }
+  connect();
 
   animate();
 });
